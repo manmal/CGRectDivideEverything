@@ -28,8 +28,10 @@
         self.userNameField.placeholder = NSLocalizedString(@"Enter a Github user name...", nil);
         self.userNameField.font = [UIFont fontWithName:@"Futura-Medium" size:20.f];
         self.userNameField.autocorrectionType = UITextAutocorrectionTypeNo;
+        self.userNameField.clearButtonMode = UITextFieldViewModeWhileEditing;
         self.tableView.dataSource = self;
         self.tableView.delegate = self;
+        self.tableView.indicatorStyle = UIScrollViewIndicatorStyleBlack;
         self.separatorView.backgroundColor = UIColor.blackColor;
 
         [self addSubview:_userNameField];
@@ -37,7 +39,7 @@
         [self addSubview:_tableView];
 
         @weakify(self)
-        [[RACObserve(self, viewModel.users) ignore:nil] subscribeNext:^(NSArray *users) {
+        [RACObserve(self, viewModel.users) subscribeNext:^(NSArray *users) {
             @strongify(self)
             [self.tableView reloadData];
         }];

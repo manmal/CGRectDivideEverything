@@ -2,13 +2,8 @@
 // Created by Manuel Maly on 07.07.14.
 // Copyright (c) 2014 Creative Pragmatics GmbH. All rights reserved.
 //
-
-#import <ReactiveCocoa/ReactiveCocoa/NSObject+RACPropertySubscribing.h>
-#import <ReactiveCocoa/ReactiveCocoa/RACSignal.h>
-#import <ReactiveCocoa/RACEXTScope.h>
 #import "MMMainViewController.h"
 #import "MMMainViewModel.h"
-#import "MMGithubUserCell.h"
 #import "MMMainView.h"
 
 @interface MMMainViewController()
