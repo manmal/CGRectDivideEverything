@@ -25,6 +25,9 @@
         self.separatorView = UIView.new;
         self.tableView = UITableView.new;
 
+        self.userNameField.placeholder = NSLocalizedString(@"Enter a Github user name...", nil);
+        self.userNameField.font = [UIFont fontWithName:@"Futura-Medium" size:20.f];
+        self.userNameField.autocorrectionType = UITextAutocorrectionTypeNo;
         self.tableView.dataSource = self;
         self.tableView.delegate = self;
         self.separatorView.backgroundColor = UIColor.blackColor;
@@ -59,9 +62,10 @@
     // Cut status bar height
     CGRectDivide(self.bounds, &slice, &remainder, [UIApplication sharedApplication].statusBarFrame.size.height, CGRectMinYEdge);
 
-    // Slice user name field
+    // Slice user name field and cut left and right margin
     CGRectDivide(remainder, &slice, &remainder, 50.f, CGRectMinYEdge);
-    self.userNameField.frame = slice;
+    static const CGFloat userNameFieldHMargin = 16.f;
+    self.userNameField.frame = CGRectInset(slice, userNameFieldHMargin, 0);
 
     // Slice separator and table view
     CGRectDivide(remainder, &slice, &remainder, 2.f, CGRectMinYEdge);
