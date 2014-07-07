@@ -47,6 +47,9 @@
         // Skip textfield's first value, and only return its latest content after a timeout.
         // If the user types within the timeout, the old value content is discared and the timout is restarted.
         RAC(self, viewModel.searchTerm) = [[[self.userNameField.rac_textSignal skip:1] map:^id(NSString *userName) {
+            // Don't wait for an empty content.
+            if (userName.length == 0) return [RACSignal return:nil];
+
             return [[RACSignal return:userName] delay:0.3f];
         }] switchToLatest];
     }
