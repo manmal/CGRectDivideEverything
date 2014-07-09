@@ -34,6 +34,7 @@
         self.userNameField.clearButtonMode = UITextFieldViewModeWhileEditing;
         self.tableView.dataSource = self;
         self.tableView.delegate = self;
+        self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
         self.tableView.indicatorStyle = UIScrollViewIndicatorStyleBlack;
         self.separatorView.backgroundColor = UIColor.blackColor;
 
@@ -87,7 +88,7 @@
     CGRect slice, remainder;
 
     // Cut status bar height
-    CGRectDivide(self.bounds, &slice, &remainder, [UIApplication sharedApplication].statusBarFrame.size.height, CGRectMinYEdge);
+    CGRectDivide(self.bounds, &slice, &remainder, MIN([UIApplication sharedApplication].statusBarFrame.size.height, [UIApplication sharedApplication].statusBarFrame.size.width), CGRectMinYEdge);
 
     // Slice partialUser name field and cut left and right margin
     CGRectDivide(remainder, &slice, &remainder, 50.f, CGRectMinYEdge);
@@ -126,6 +127,7 @@
     MMGithubUser *partialUser = self.viewModel.partialUsers[indexPath.row];
     cell.user = self.viewModel.fullyLoadedUsers[partialUser.login] ?: partialUser;
     cell.loadFullUserCommand = [self.viewModel loadFullUserCommand:cell.user createIfNotExists:NO];
+    cell.isLastCell = indexPath.row == self.viewModel.partialUsers.count - 1;
     return cell;
 }
 
@@ -148,11 +150,28 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     MMGithubUser *partialUser = self.viewModel.partialUsers[indexPath.row];
+
+    CGFloat contentHeight;
+
     if (self.viewModel.fullyLoadedUsers[partialUser.login]) {
-        return MMGithubUserCellFullyLoadedHeight;
+        contentHeight = MMGithubUserCellFullyLoadedHeight;
     } else {
-        return MMGithubUserCellPartiallyLoadedHeight;
+        contentHeight = MMGithubUserCellPartiallyLoadedHeight;
     }
+
+    if (indexPath.row == self.viewModel.partialUsers.count - 1) {
+        contentHeight += MMGithubUserCellOuterStrokeViewTopOffset;
+    }
+
+    return contentHeight;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    return 0.1f;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    return UIView.new;
 }
 
 @end

@@ -16,7 +16,6 @@
 #import "UIView+MMAdditions.h"
 
 static const CGFloat outerStrokeViewHInset = 10.f;
-static const CGFloat outerStrokeViewVInset = 10.f;
 
 @interface MMGithubUserCell()
 
@@ -81,6 +80,7 @@ static const CGFloat outerStrokeViewVInset = 10.f;
     UIView *strokeView = UIView.new;
     strokeView.layer.borderWidth = 2.f;
     strokeView.layer.borderColor = [UIColor colorWithRed:0.961 green:0.961 blue:0.961 alpha:1.0].CGColor;
+    strokeView.layer.cornerRadius = 5.f;
     strokeView.layer.shouldRasterize = YES;
     strokeView.layer.rasterizationScale = UIScreen.mainScreen.scale;
 
@@ -129,7 +129,9 @@ static const CGFloat outerStrokeViewVInset = 10.f;
     CGRect nettoRect, slice, verticalRemainder, horizontalRemainder;
 
     // Outer stroke view has inset from bounds
-    self.outerStrokeView.frame = CGRectInset(self.bounds, outerStrokeViewHInset, outerStrokeViewVInset);
+    CGRect offsetBounds = CGRectOffset(self.bounds, 0, MMGithubUserCellOuterStrokeViewTopOffset);
+    offsetBounds.size.height -= MMGithubUserCellOuterStrokeViewTopOffset * (self.isLastCell ? 2.f : 1.f);
+    self.outerStrokeView.frame = CGRectInset(offsetBounds, outerStrokeViewHInset, 0);
 
     // Netto rect is where all the other elements align
     nettoRect = CGRectInset(self.outerStrokeView.frame, 10.f, 10.f);

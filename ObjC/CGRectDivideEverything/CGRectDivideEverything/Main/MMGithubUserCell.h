@@ -11,12 +11,14 @@
 
 static const CGFloat MMGithubUserCellPartiallyLoadedHeight = 66.f;
 static const CGFloat MMGithubUserCellFullyLoadedHeight = 500.f;
+static const CGFloat MMGithubUserCellOuterStrokeViewTopOffset = 10.f;
 
 @interface MMGithubUserCell : UITableViewCell
 
 @property (strong, nonatomic) MMGithubUser *user;
 @property (strong, nonatomic) MMLoadFullUserCommand *loadFullUserCommand;
 @property (assign, nonatomic) BOOL expanded;
+@property (assign, nonatomic) BOOL isLastCell;
 
 + (instancetype)cellForTableView:(UITableView *)tableView style:(UITableViewCellStyle)style;
 
