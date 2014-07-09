@@ -112,7 +112,8 @@
 }
 
 - (void)keyboardWillShow:(NSNotification *)notification {
-    self.shownKeyboardHeight = [[[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height;
+    CGSize keyboardSize = [[[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
+    self.shownKeyboardHeight = MIN(keyboardSize.height, keyboardSize.width);
     [self layoutSubviews];
 }
 

@@ -10,7 +10,7 @@
 @class MMLoadFullUserCommand;
 
 static const CGFloat MMGithubUserCellPartiallyLoadedHeight = 66.f;
-static const CGFloat MMGithubUserCellFullyLoadedHeight = 500.f;
+static const CGFloat MMGithubUserCellFullyLoadedHeight = 315.f;
 static const CGFloat MMGithubUserCellOuterStrokeViewTopOffset = 10.f;
 
 @interface MMGithubUserCell : UITableViewCell
