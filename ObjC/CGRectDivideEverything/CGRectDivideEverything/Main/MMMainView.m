@@ -6,6 +6,8 @@
 #import "MMMainView.h"
 #import "MMMainViewModel.h"
 #import "MMGithubUserCell.h"
+#import "MMGithubUser.h"
+#import "MMLoadFullUserCommand.h"
 #import <ReactiveCocoa/ReactiveCocoa.h>
 #import <RACEXTScope.h>
 
@@ -45,7 +47,7 @@
         }];
 
         // Skip textfield's first value, and only return its latest content after a timeout.
-        // If the user types within the timeout, the old value content is discared and the timout is restarted.
+        // If the partialUser types within the timeout, the old value content is discared and the timout is restarted.
         RAC(self, viewModel.searchTerm) = [[[self.userNameField.rac_textSignal skip:1] map:^id(NSString *userName) {
             // Don't wait for an empty content.
             if (userName.length == 0) return [RACSignal return:nil];
@@ -67,7 +69,7 @@
     // Cut status bar height
     CGRectDivide(self.bounds, &slice, &remainder, [UIApplication sharedApplication].statusBarFrame.size.height, CGRectMinYEdge);
 
-    // Slice user name field and cut left and right margin
+    // Slice partialUser name field and cut left and right margin
     CGRectDivide(remainder, &slice, &remainder, 50.f, CGRectMinYEdge);
     static const CGFloat userNameFieldHMargin = 16.f;
     self.userNameField.frame = CGRectInset(slice, userNameFieldHMargin, 0);
@@ -87,7 +89,32 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     MMGithubUserCell *cell = [MMGithubUserCell cellForTableView:self.tableView style:UITableViewCellStyleDefault];
     cell.user = self.viewModel.users[indexPath.row];
+    cell.loadFullUserCommand = [self.viewModel loadFullUserCommand:cell.user createIfNotExists:NO];
     return cell;
+}
+
+#pragma mark - UITableViewDelegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    MMGithubUserCell *cell = (MMGithubUserCell *)[self.tableView cellForRowAtIndexPath:indexPath];
+
+    // Lazily load command now because loading it in tableView:cellForRowAtIndexPath: could cause jerky scrolling
+    if (!cell.loadFullUserCommand) {
+        cell.loadFullUserCommand = [self.viewModel loadFullUserCommand:self.viewModel.users[indexPath.row] createIfNotExists:YES];
+    }
+
+    [cell.loadFullUserCommand execute:nil];
+
+    cell.expanded = !cell.expanded;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    MMLoadFullUserCommand *command = [self.viewModel loadFullUserCommand:self.viewModel.users[indexPath.row] createIfNotExists:NO];
+    if (command) {
+        return 100.f;
+    }
+
+    return 50.f;
 }
 
 @end

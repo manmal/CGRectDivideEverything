@@ -40,4 +40,7 @@
 @property (strong, nonatomic) NSDate *createdAt;
 @property (strong, nonatomic) NSDate *updatedAt;
 
+// Transient
+@property (assign, nonatomic) BOOL fullyLoaded;
+
 @end

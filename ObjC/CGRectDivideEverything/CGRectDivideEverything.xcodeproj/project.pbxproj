@@ -21,6 +21,7 @@
 		6F5C0A32196B10180011CF0B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6F5C0A30196B10180011CF0B /* InfoPlist.strings */; };
 		6F5C0A34196B10180011CF0B /* CGRectDivideEverythingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F5C0A33196B10180011CF0B /* CGRectDivideEverythingTests.m */; };
 		B3ABF0882746DDAE424632FB /* MMGithubUser.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABF4A6327D5B8C048B2BDB /* MMGithubUser.m */; };
+		B3ABF1FEA4590A0A5E180CD7 /* MMLoadFullUserCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABF76B48FBAF3D25C49F47 /* MMLoadFullUserCommand.m */; };
 		B3ABFA180D6697BDD04A9D51 /* MMMainViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABFC34876BDD5AE96F37AF /* MMMainViewModel.m */; };
 		B3ABFBD2E60AA8090A9C3E0C /* MMMainView.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABF0C04703DA8F2F3F31D9 /* MMMainView.m */; };
 		B3ABFD57762852F8DD7E56CA /* MMGithubUserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABF8FF8292841F7522E46F /* MMGithubUserCell.m */; };
@@ -60,9 +61,11 @@
 		B3ABF4A6327D5B8C048B2BDB /* MMGithubUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMGithubUser.m; sourceTree = "<group>"; };
 		B3ABF6340B6C7BC342ED173D /* MMGithubUserCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMGithubUserCell.h; sourceTree = "<group>"; };
 		B3ABF73C9B53B99F9433AB5E /* MMMainViewModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMMainViewModel.h; sourceTree = "<group>"; };
+		B3ABF76B48FBAF3D25C49F47 /* MMLoadFullUserCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMLoadFullUserCommand.m; sourceTree = "<group>"; };
 		B3ABF7A7C1D459EC204CFACB /* MMGithubUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMGithubUser.h; sourceTree = "<group>"; };
 		B3ABF8FB18A805C95AAA224F /* MMMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMMainViewController.h; sourceTree = "<group>"; };
 		B3ABF8FF8292841F7522E46F /* MMGithubUserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMGithubUserCell.m; sourceTree = "<group>"; };
+		B3ABF92DAF0D805AAEC03479 /* MMLoadFullUserCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMLoadFullUserCommand.h; sourceTree = "<group>"; };
 		B3ABFB66B60AEA1DAADFB145 /* MMMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMMainViewController.m; sourceTree = "<group>"; };
 		B3ABFC34876BDD5AE96F37AF /* MMMainViewModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMMainViewModel.m; sourceTree = "<group>"; };
 		FF97F25851464B17AC2B0801 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
@@ -178,6 +181,8 @@
 				B3ABF6340B6C7BC342ED173D /* MMGithubUserCell.h */,
 				B3ABF0C04703DA8F2F3F31D9 /* MMMainView.m */,
 				B3ABF0116F7DAEA5E0333530 /* MMMainView.h */,
+				B3ABF76B48FBAF3D25C49F47 /* MMLoadFullUserCommand.m */,
+				B3ABF92DAF0D805AAEC03479 /* MMLoadFullUserCommand.h */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -334,6 +339,7 @@
 				B3ABF0882746DDAE424632FB /* MMGithubUser.m in Sources */,
 				B3ABFD57762852F8DD7E56CA /* MMGithubUserCell.m in Sources */,
 				B3ABFBD2E60AA8090A9C3E0C /* MMMainView.m in Sources */,
+				B3ABF1FEA4590A0A5E180CD7 /* MMLoadFullUserCommand.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

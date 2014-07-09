@@ -18,7 +18,6 @@
 - (id)init {
     if (self = [super init]) {
         self.viewModel = MMMainViewModel.new;
-
     }
 
     return self;

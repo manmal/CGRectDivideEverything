@@ -5,10 +5,16 @@
 
 #import <Foundation/Foundation.h>
 
+@class RACCommand;
+@class MMGithubUser;
+@class MMLoadFullUserCommand;
+
 
 @interface MMMainViewModel : NSObject
 
 @property (copy, nonatomic) NSString *searchTerm;
 @property (copy, nonatomic) NSArray *users;
+
+- (MMLoadFullUserCommand *)loadFullUserCommand:(MMGithubUser *)user createIfNotExists:(BOOL)createIfNotExists;
 
 @end
