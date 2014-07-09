@@ -7,18 +7,21 @@
 #import "RACSignal.h"
 #import <RACEXTScope.h>
 #import <ReactiveCocoa/ReactiveCocoa/RACCommand.h>
+#import <ReactiveCocoa/ReactiveCocoa/RACSignal.h>
 #import "AFHTTPRequestOperationManager.h"
 #import "AFHTTPRequestOperationManager+RACSupport.h"
 #import "MMLoadFullUserCommand.h"
 #import "MMGithubUser.h"
 #import "MMGithubUser.h"
 #import "MMLoadFullUserCommand.h"
+#import "NSDictionary+MTLManipulationAdditions.h"
 
 @interface MMMainViewModel()
 
 @property (strong, nonatomic) AFHTTPRequestOperationManager *manager;
 @property (strong, nonatomic) NSMutableDictionary *loadFullUserCommands;
-@property (strong, nonatomic) NSMutableDictionary *loadedUsers;
+@property (strong, nonatomic, readwrite) NSMutableDictionary *fullyLoadedUsers;
+@property (strong, nonatomic, readwrite) RACSubject *someUserFullyLoaded;
 
 @end
 
@@ -31,11 +34,14 @@
         self.manager.responseSerializer = AFJSONResponseSerializer.serializer;
 
         self.loadFullUserCommands = NSMutableDictionary.new;
+        self.fullyLoadedUsers = NSMutableDictionary.new;
 
-        RAC(self, users) = [self.githubUsersSignal catch:^RACSignal *(NSError *error) {
+        RAC(self, partialUsers) = [self.githubUsersSignal catch:^RACSignal *(NSError *error) {
             NSLog(@"%@", error.localizedDescription);
             return [RACSignal return:nil];
         }];
+
+        self.someUserFullyLoaded = [RACSubject subject];
     }
 
     return self;
@@ -79,7 +85,8 @@
     [[loadFullUserCommand.executionSignals.flatten ignore:nil] subscribeNext:^(MMGithubUser *user) {
         if (!user.login) return;
         @strongify(self)
-        self.loadedUsers[user.login] = user;
+        self.fullyLoadedUsers[user.login] = user;
+        [self.someUserFullyLoaded sendNext:user];
     }];
 
     self.loadFullUserCommands[login] = loadFullUserCommand;

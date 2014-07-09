@@ -22,9 +22,11 @@
 		6F5C0A34196B10180011CF0B /* CGRectDivideEverythingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F5C0A33196B10180011CF0B /* CGRectDivideEverythingTests.m */; };
 		B3ABF0882746DDAE424632FB /* MMGithubUser.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABF4A6327D5B8C048B2BDB /* MMGithubUser.m */; };
 		B3ABF1FEA4590A0A5E180CD7 /* MMLoadFullUserCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABF76B48FBAF3D25C49F47 /* MMLoadFullUserCommand.m */; };
+		B3ABF893255A7E8EC9259F9B /* UIView+MMAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABF007D63FBE5DD90BDEF8 /* UIView+MMAdditions.m */; };
 		B3ABFA180D6697BDD04A9D51 /* MMMainViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABFC34876BDD5AE96F37AF /* MMMainViewModel.m */; };
 		B3ABFBD2E60AA8090A9C3E0C /* MMMainView.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABF0C04703DA8F2F3F31D9 /* MMMainView.m */; };
 		B3ABFD57762852F8DD7E56CA /* MMGithubUserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABF8FF8292841F7522E46F /* MMGithubUserCell.m */; };
+		B3ABFE87C408AB0446F9E77E /* MMRoundedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABF8AFCB9FE1E47EF9AD6C /* MMRoundedButton.m */; };
 		B3ABFF360BC9BEAAF406A8E8 /* MMMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABFB66B60AEA1DAADFB145 /* MMMainViewController.m */; };
 /* End PBXBuildFile section */
 
@@ -56,13 +58,17 @@
 		6F5C0A2F196B10180011CF0B /* CGRectDivideEverythingTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CGRectDivideEverythingTests-Info.plist"; sourceTree = "<group>"; };
 		6F5C0A31196B10180011CF0B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6F5C0A33196B10180011CF0B /* CGRectDivideEverythingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CGRectDivideEverythingTests.m; sourceTree = "<group>"; };
+		B3ABF007D63FBE5DD90BDEF8 /* UIView+MMAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+MMAdditions.m"; sourceTree = "<group>"; };
 		B3ABF0116F7DAEA5E0333530 /* MMMainView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMMainView.h; sourceTree = "<group>"; };
 		B3ABF0C04703DA8F2F3F31D9 /* MMMainView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMMainView.m; sourceTree = "<group>"; };
+		B3ABF2828D415EC631EE4F03 /* UIView+MMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+MMAdditions.h"; sourceTree = "<group>"; };
 		B3ABF4A6327D5B8C048B2BDB /* MMGithubUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMGithubUser.m; sourceTree = "<group>"; };
 		B3ABF6340B6C7BC342ED173D /* MMGithubUserCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMGithubUserCell.h; sourceTree = "<group>"; };
 		B3ABF73C9B53B99F9433AB5E /* MMMainViewModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMMainViewModel.h; sourceTree = "<group>"; };
 		B3ABF76B48FBAF3D25C49F47 /* MMLoadFullUserCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMLoadFullUserCommand.m; sourceTree = "<group>"; };
 		B3ABF7A7C1D459EC204CFACB /* MMGithubUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMGithubUser.h; sourceTree = "<group>"; };
+		B3ABF811AB4C53D6DCE341A6 /* MMRoundedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMRoundedButton.h; sourceTree = "<group>"; };
+		B3ABF8AFCB9FE1E47EF9AD6C /* MMRoundedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMRoundedButton.m; sourceTree = "<group>"; };
 		B3ABF8FB18A805C95AAA224F /* MMMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMMainViewController.h; sourceTree = "<group>"; };
 		B3ABF8FF8292841F7522E46F /* MMGithubUserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMGithubUserCell.m; sourceTree = "<group>"; };
 		B3ABF92DAF0D805AAEC03479 /* MMLoadFullUserCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMLoadFullUserCommand.h; sourceTree = "<group>"; };
@@ -137,6 +143,7 @@
 				6F5C0A15196B10180011CF0B /* Supporting Files */,
 				B3ABF7868C337AF8BACB1671 /* Main */,
 				B3ABFE6197ED2F676FB3928F /* Model */,
+				B3ABF5A3D85F9ED2B500B315 /* Categories */,
 			);
 			path = CGRectDivideEverything;
 			sourceTree = "<group>";
@@ -170,6 +177,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		B3ABF5A3D85F9ED2B500B315 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				B3ABF007D63FBE5DD90BDEF8 /* UIView+MMAdditions.m */,
+				B3ABF2828D415EC631EE4F03 /* UIView+MMAdditions.h */,
+			);
+			path = Categories;
+			sourceTree = "<group>";
+		};
 		B3ABF7868C337AF8BACB1671 /* Main */ = {
 			isa = PBXGroup;
 			children = (
@@ -183,6 +199,8 @@
 				B3ABF0116F7DAEA5E0333530 /* MMMainView.h */,
 				B3ABF76B48FBAF3D25C49F47 /* MMLoadFullUserCommand.m */,
 				B3ABF92DAF0D805AAEC03479 /* MMLoadFullUserCommand.h */,
+				B3ABF8AFCB9FE1E47EF9AD6C /* MMRoundedButton.m */,
+				B3ABF811AB4C53D6DCE341A6 /* MMRoundedButton.h */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -340,6 +358,8 @@
 				B3ABFD57762852F8DD7E56CA /* MMGithubUserCell.m in Sources */,
 				B3ABFBD2E60AA8090A9C3E0C /* MMMainView.m in Sources */,
 				B3ABF1FEA4590A0A5E180CD7 /* MMLoadFullUserCommand.m in Sources */,
+				B3ABFE87C408AB0446F9E77E /* MMRoundedButton.m in Sources */,
+				B3ABF893255A7E8EC9259F9B /* UIView+MMAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,6 +9,9 @@
 @class RACCommand;
 @class MMLoadFullUserCommand;
 
+static const CGFloat MMGithubUserCellPartiallyLoadedHeight = 66.f;
+static const CGFloat MMGithubUserCellFullyLoadedHeight = 500.f;
+
 @interface MMGithubUserCell : UITableViewCell
 
 @property (strong, nonatomic) MMGithubUser *user;

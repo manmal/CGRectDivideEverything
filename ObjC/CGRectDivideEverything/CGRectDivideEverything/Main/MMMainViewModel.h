@@ -8,12 +8,15 @@
 @class RACCommand;
 @class MMGithubUser;
 @class MMLoadFullUserCommand;
+@class RACSubject;
 
 
 @interface MMMainViewModel : NSObject
 
 @property (copy, nonatomic) NSString *searchTerm;
-@property (copy, nonatomic) NSArray *users;
+@property (copy, nonatomic) NSArray *partialUsers;
+@property (strong, nonatomic, readonly) NSMutableDictionary *fullyLoadedUsers;
+@property (strong, nonatomic, readonly) RACSubject *someUserFullyLoaded;
 
 - (MMLoadFullUserCommand *)loadFullUserCommand:(MMGithubUser *)user createIfNotExists:(BOOL)createIfNotExists;
 

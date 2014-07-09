@@ -12,18 +12,55 @@
 #import <ReactiveCocoa/ReactiveCocoa/UITableViewCell+RACSignalSupport.h>
 #import "MMGithubUserCell.h"
 #import "MMGithubUser.h"
+#import "MMRoundedButton.h"
+#import "UIView+MMAdditions.h"
+
+static const CGFloat outerStrokeViewHInset = 10.f;
+static const CGFloat outerStrokeViewVInset = 10.f;
 
 @interface MMGithubUserCell()
 
-@property (strong, nonatomic) UILabel *userNameLabel;
-@property (strong, nonatomic) UIActivityIndicatorView *activityIndicator;
 @property (assign, nonatomic) BOOL loading;
+
+@property (strong, nonatomic) UIView *outerStrokeView;
+@property (strong, nonatomic) UIImageView *avatarView;
+@property (strong, nonatomic) UILabel *loginLabel;
+@property (strong, nonatomic) UIActivityIndicatorView *activityIndicator;
+@property (strong, nonatomic) MMRoundedButton *publicReposButton;
+@property (strong, nonatomic) MMRoundedButton *publicGistsButton;
+@property (strong, nonatomic) MMRoundedButton *followersLabel;
+@property (strong, nonatomic) MMRoundedButton *followingLabel;
+@property (strong, nonatomic) UILabel *companyDescLabel;
+@property (strong, nonatomic) UILabel *companyLabel;
+@property (strong, nonatomic) UILabel *hireableDescLabel;
+@property (strong, nonatomic) UILabel *hireableLabel;
+@property (strong, nonatomic) UILabel *profileURLDescLabel;
+@property (strong, nonatomic) UILabel *profileURLLabel;
+@property (strong, nonatomic) UILabel *blogDescLabel;
+@property (strong, nonatomic) UILabel *blogLabel;
 
 @end
 
 @implementation MMGithubUserCell
 
 #pragma mark - Initialization
+
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+        self.selectionStyle = UITableViewCellSelectionStyleNone;
+        self.outerStrokeView = [self.class makeStrokeView];
+        self.avatarView = UIImageView.new;
+        self.loginLabel = UILabel.new;
+        self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+
+        self.activityIndicator.hidesWhenStopped = YES;
+        self.activityIndicator.color = UIColor.blackColor;
+
+        [self addSubviews:@[_outerStrokeView, _avatarView, _loginLabel, _activityIndicator]];
+    }
+
+    return self;
+}
 
 + (instancetype)cellForTableView:(UITableView *)tableView style:(UITableViewCellStyle)style {
     NSString *cellID = [self cellIdentifier];
@@ -40,23 +77,14 @@
     return NSStringFromClass([self class]);
 }
 
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
-    if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
-        self.userNameLabel = UILabel.new;
-        self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
++ (UIView *)makeStrokeView {
+    UIView *strokeView = UIView.new;
+    strokeView.layer.borderWidth = 2.f;
+    strokeView.layer.borderColor = [UIColor colorWithRed:0.961 green:0.961 blue:0.961 alpha:1.0].CGColor;
+    strokeView.layer.shouldRasterize = YES;
+    strokeView.layer.rasterizationScale = UIScreen.mainScreen.scale;
 
-        self.activityIndicator.hidesWhenStopped = YES;
-        self.activityIndicator.color = UIColor.blackColor;
-
-        [self addSubview:_userNameLabel];
-        [self addSubview:_activityIndicator];
-
-        RAC(self, loading) = [[RACObserve(self, loadFullUserCommand) map:^id(MMLoadFullUserCommand *loadFullUserCommand) {
-            return loadFullUserCommand.executing;
-        }] switchToLatest];
-    }
-
-    return self;
+    return strokeView;
 }
 
 #pragma mark - Attribute Accessors
@@ -73,8 +101,7 @@
 }
 
 - (void)setLoadFullUserCommand:(MMLoadFullUserCommand *)loadFullUserCommand {
-    // Command can only be set once after initial state or prepareForReuse.
-    if (_loadFullUserCommand) return;
+    NSAssert(!(loadFullUserCommand && _loadFullUserCommand), @"loadFullUserCommand can only be set once after initial state or prepareForReuse.");
     _loadFullUserCommand = loadFullUserCommand;
 
     @weakify(self)
@@ -84,12 +111,14 @@
         @strongify(self)
         self.user = user;
     }];
+
+    RAC(self, loading) = [loadFullUserCommand.executing takeUntil:self.rac_prepareForReuseSignal];
 }
 
 - (void)setUser:(MMGithubUser *)user {
     _user = user;
 
-    self.userNameLabel.text = user.name ?: user.login;
+    self.loginLabel.text = user.name ?: user.login;
 }
 
 #pragma mark - Layout
@@ -97,8 +126,26 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
 
-    self.userNameLabel.frame = self.bounds;
+    CGRect nettoRect, slice, verticalRemainder, horizontalRemainder;
+
+    // Outer stroke view has inset from bounds
+    self.outerStrokeView.frame = CGRectInset(self.bounds, outerStrokeViewHInset, outerStrokeViewVInset);
+
+    // Netto rect is where all the other elements align
+    nettoRect = CGRectInset(self.outerStrokeView.frame, 10.f, 10.f);
+
+    //////// Slice avatar and login label ////////
+
+    CGRectDivide(nettoRect, &slice, &verticalRemainder, MMGithubUserCellPartiallyLoadedHeight, CGRectMinYEdge);
+
+    // Slice avatar
+    CGRectDivide(slice, &slice, &horizontalRemainder, MMGithubUserCellPartiallyLoadedHeight, CGRectMinYEdge);
+
+    // Login
+    self.loginLabel.frame = self.bounds;
     self.activityIndicator.frame = CGRectMake(100, 0, 40, 40);
+
+
 }
 
 #pragma mark - Teardown

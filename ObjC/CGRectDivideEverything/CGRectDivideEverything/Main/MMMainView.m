@@ -16,6 +16,7 @@
 @property (strong, nonatomic) UITextField *userNameField;
 @property (strong, nonatomic) UIView *separatorView;
 @property (strong, nonatomic) UITableView *tableView;
+@property (assign, nonatomic) CGFloat shownKeyboardHeight;
 
 @end
 
@@ -40,23 +41,42 @@
         [self addSubview:_separatorView];
         [self addSubview:_tableView];
 
-        @weakify(self)
-        [RACObserve(self, viewModel.users) subscribeNext:^(NSArray *users) {
-            @strongify(self)
-            [self.tableView reloadData];
-        }];
-
-        // Skip textfield's first value, and only return its latest content after a timeout.
-        // If the partialUser types within the timeout, the old value content is discared and the timout is restarted.
-        RAC(self, viewModel.searchTerm) = [[[self.userNameField.rac_textSignal skip:1] map:^id(NSString *userName) {
-            // Don't wait for an empty content.
-            if (userName.length == 0) return [RACSignal return:nil];
-
-            return [[RACSignal return:userName] delay:0.3f];
-        }] switchToLatest];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
     }
 
     return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)setViewModel:(MMMainViewModel *)viewModel {
+    NSAssert(_viewModel == nil, @"viewModel must not be set more than once.");
+    _viewModel = viewModel;
+
+    @weakify(self)
+    [RACObserve(self.viewModel, partialUsers) subscribeNext:^(NSArray *users) {
+        @strongify(self)
+        [self.tableView reloadData];
+    }];
+
+    // Wait until a viewModel is set and then subscribe to its someUserFullyLoaded signal
+    [self.viewModel.someUserFullyLoaded subscribeNext:^(MMGithubUser *user) {
+        @strongify(self)
+        [self.tableView beginUpdates];
+        [self.tableView endUpdates];
+    }];
+
+    // Skip textfield's first value, and only return its latest content after a timeout.
+    // If the partialUser types within the timeout, the old value content is discared and the timout is restarted.
+    RAC(self.viewModel, searchTerm) = [[[self.userNameField.rac_textSignal skip:1] map:^id(NSString *userName) {
+        // Don't wait for an empty content.
+        if (userName.length == 0) return [RACSignal return:nil];
+
+        return [[RACSignal return:userName] delay:0.3f];
+    }] switchToLatest];
 }
 
 #pragma mark - Layout
@@ -78,17 +98,33 @@
     CGRectDivide(remainder, &slice, &remainder, 2.f, CGRectMinYEdge);
     self.separatorView.frame = slice;
     self.tableView.frame = remainder;
+
+    self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, self.shownKeyboardHeight, 0);
+    self.tableView.contentInset = self.tableView.scrollIndicatorInsets;
+}
+
+#pragma mark - Keyboard Handling
+
+- (void)keyboardWillHide:(NSNotification *)notification {
+    self.shownKeyboardHeight = 0.f;
+    [self layoutSubviews];
+}
+
+- (void)keyboardWillShow:(NSNotification *)notification {
+    self.shownKeyboardHeight = [[[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height;
+    [self layoutSubviews];
 }
 
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.viewModel.users.count;
+    return self.viewModel.partialUsers.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     MMGithubUserCell *cell = [MMGithubUserCell cellForTableView:self.tableView style:UITableViewCellStyleDefault];
-    cell.user = self.viewModel.users[indexPath.row];
+    MMGithubUser *partialUser = self.viewModel.partialUsers[indexPath.row];
+    cell.user = self.viewModel.fullyLoadedUsers[partialUser.login] ?: partialUser;
     cell.loadFullUserCommand = [self.viewModel loadFullUserCommand:cell.user createIfNotExists:NO];
     return cell;
 }
@@ -96,11 +132,13 @@
 #pragma mark - UITableViewDelegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [self endEditing:YES];
+
     MMGithubUserCell *cell = (MMGithubUserCell *)[self.tableView cellForRowAtIndexPath:indexPath];
 
-    // Lazily load command now because loading it in tableView:cellForRowAtIndexPath: could cause jerky scrolling
+    // Lazily set command now because setting it in tableView:cellForRowAtIndexPath: could cause jerky scrolling
     if (!cell.loadFullUserCommand) {
-        cell.loadFullUserCommand = [self.viewModel loadFullUserCommand:self.viewModel.users[indexPath.row] createIfNotExists:YES];
+        cell.loadFullUserCommand = [self.viewModel loadFullUserCommand:self.viewModel.partialUsers[indexPath.row] createIfNotExists:YES];
     }
 
     [cell.loadFullUserCommand execute:nil];
@@ -109,12 +147,12 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    MMLoadFullUserCommand *command = [self.viewModel loadFullUserCommand:self.viewModel.users[indexPath.row] createIfNotExists:NO];
-    if (command) {
-        return 100.f;
+    MMGithubUser *partialUser = self.viewModel.partialUsers[indexPath.row];
+    if (self.viewModel.fullyLoadedUsers[partialUser.login]) {
+        return MMGithubUserCellFullyLoadedHeight;
+    } else {
+        return MMGithubUserCellPartiallyLoadedHeight;
     }
-
-    return 50.f;
 }
 
 @end
