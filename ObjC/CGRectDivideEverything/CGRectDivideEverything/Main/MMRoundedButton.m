@@ -14,8 +14,9 @@
         self.layer.borderWidth = 2.f;
         self.layer.shouldRasterize = YES;
         self.layer.rasterizationScale = UIScreen.mainScreen.scale;
-        self.titleLabel.font = [UIFont boldSystemFontOfSize:15.f];
+        self.titleLabel.font = [UIFont fontWithName:@"Futura-Medium" size:18.f];
         self.titleLabel.adjustsFontSizeToFitWidth = YES;
+        [self setTitleColor:UIColor.blackColor forState:UIControlStateNormal];
         self.adjustsImageWhenHighlighted = NO;
     }
 
@@ -25,6 +26,12 @@
 - (CGSize)intrinsicContentSize {
     CGSize titleLabelSize = self.titleLabel.intrinsicContentSize;
     return CGSizeMake(titleLabelSize.width + 20.f, titleLabelSize.height + 16.f);
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+
+    self.layer.cornerRadius = self.intrinsicContentSize.height / 2.f;
 }
 
 @end

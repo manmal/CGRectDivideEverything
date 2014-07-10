@@ -16,9 +16,7 @@
 #import "UIView+MMAdditions.h"
 #import "UIImageView+AFNetworking.h"
 
-static const CGFloat outerStrokeViewHInset = 10.f;
 static const CGFloat outerStrokeViewBorderWidth = 2.f;
-static const CGFloat innerStrokePadding = 10.f;
 
 @interface MMGithubUserCell()
 
@@ -28,10 +26,10 @@ static const CGFloat innerStrokePadding = 10.f;
 @property (strong, nonatomic) UIImageView *avatarView;
 @property (strong, nonatomic) UILabel *loginLabel;
 @property (strong, nonatomic) UIActivityIndicatorView *activityIndicator;
-@property (strong, nonatomic) MMRoundedButton *publicReposButton;
-@property (strong, nonatomic) MMRoundedButton *publicGistsButton;
-@property (strong, nonatomic) MMRoundedButton *followersLabel;
-@property (strong, nonatomic) MMRoundedButton *followingLabel;
+@property (strong, nonatomic) MMRoundedButton *reposButton;
+@property (strong, nonatomic) MMRoundedButton *gistsButton;
+@property (strong, nonatomic) MMRoundedButton *followersButton;
+@property (strong, nonatomic) MMRoundedButton *followingButton;
 @property (strong, nonatomic) UILabel *companyDescLabel;
 @property (strong, nonatomic) UILabel *companyLabel;
 @property (strong, nonatomic) UILabel *hireableDescLabel;
@@ -52,13 +50,17 @@ static const CGFloat innerStrokePadding = 10.f;
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         self.outerStrokeView = [self.class makeStrokeView];
         self.avatarView = [self.class makeAvatarView];
-        self.loginLabel = UILabel.new;
+        self.loginLabel = [self.class makeLabelWithFontSize:20.f];
         self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+        self.reposButton = MMRoundedButton.new;
+        self.gistsButton = MMRoundedButton.new;
+        self.followersButton = MMRoundedButton.new;
+        self.followingButton = MMRoundedButton.new;
 
         self.activityIndicator.hidesWhenStopped = YES;
         self.activityIndicator.color = UIColor.blackColor;
 
-        [self addSubviews:@[_outerStrokeView, _avatarView, _loginLabel, _activityIndicator]];
+        [self addSubviews:@[_outerStrokeView, _avatarView, _loginLabel, _activityIndicator, _reposButton, _gistsButton, _followersButton, _followingButton]];
     }
 
     return self;
@@ -81,7 +83,7 @@ static const CGFloat innerStrokePadding = 10.f;
 
 + (UIView *)makeStrokeView {
     UIView *strokeView = UIView.new;
-    strokeView.layer.borderWidth = 2.f;
+    strokeView.layer.borderWidth = outerStrokeViewBorderWidth;
     strokeView.layer.borderColor = [UIColor colorWithRed:0.961 green:0.961 blue:0.961 alpha:1.0].CGColor;
     strokeView.layer.cornerRadius = 5.f;
     strokeView.layer.shouldRasterize = YES;
@@ -98,6 +100,13 @@ static const CGFloat innerStrokePadding = 10.f;
     avatarView.layer.rasterizationScale = UIScreen.mainScreen.scale;
 
     return avatarView;
+}
+
++ (UILabel *)makeLabelWithFontSize:(CGFloat)fontSize {
+    UILabel *label = UILabel.new;
+    label.font = [UIFont fontWithName:@"Futura-Medium" size:fontSize];
+    label.backgroundColor = UIColor.clearColor;
+    return label;
 }
 
 #pragma mark - Attribute Accessors
@@ -133,12 +142,25 @@ static const CGFloat innerStrokePadding = 10.f;
 
     self.loginLabel.text = user.name ?: user.login;
     [self.avatarView setImageWithURL:[NSURL URLWithString:user.avatarURL] placeholderImage:[UIImage imageNamed:@"octocat"]];
+    [self.reposButton setTitle:(user.fullyLoaded ? [NSString stringWithFormat:@"%d Repos", user.publicRepos] : nil) forState:UIControlStateNormal];
+    [self.gistsButton setTitle:(user.fullyLoaded ? [NSString stringWithFormat:@"%d Gists", user.publicGists] : nil) forState:UIControlStateNormal];
+    [self.followersButton setTitle:(user.fullyLoaded ? [NSString stringWithFormat:@"%d Followers", user.followers] : nil) forState:UIControlStateNormal];
+    [self.followingButton setTitle:(user.fullyLoaded ? [NSString stringWithFormat:@"Following %d", user.following] : nil) forState:UIControlStateNormal];
 }
 
 #pragma mark - Layout
 
 - (void)layoutSubviews {
     [super layoutSubviews];
+
+    static const CGFloat outerStrokeViewHInset = 10.f;
+    static const CGFloat innerStrokePadding = 10.f;
+    static const CGFloat activityIndicatorWidth = 40.f;
+    static const CGFloat avatarToLoginLabelMargin = 20.f;
+    static const CGFloat activityIndicatorToLoginLabelMargin = 10.f;
+    static const CGFloat firstToSecondLineMargin = 15.f;
+    static const CGFloat secondToThirdLineMargin = 8.f;
+
 
     CGRect nettoRect, slice, verticalRemainder, lineRemainder;
 
@@ -148,30 +170,66 @@ static const CGFloat innerStrokePadding = 10.f;
     self.outerStrokeView.frame = CGRectInset(offsetBounds, outerStrokeViewHInset, 0);
 
     // Netto rect is where all the other elements align
-    nettoRect = CGRectInset(self.outerStrokeView.frame, 10.f, 10.f);
+    nettoRect = CGRectInset(self.outerStrokeView.frame, innerStrokePadding, innerStrokePadding);
 
-    //////// Slice avatar, login label, and activity indicator ////////
+    //////// Slice 1. line (avatar, login label, and activity indicator) ////////
 
-    CGFloat avatarAndLoginHeight = MMGithubUserCellPartiallyLoadedHeight - MMGithubUserCellOuterStrokeViewTopOffset - 2 * innerStrokePadding;
-    CGRectDivide(nettoRect, &slice, &lineRemainder, avatarAndLoginHeight, CGRectMinYEdge);
+    CGFloat firstLineHeight = MMGithubUserCellPartiallyLoadedHeight - MMGithubUserCellOuterStrokeViewTopOffset - 2 * innerStrokePadding;
+    CGRectDivide(nettoRect, &slice, &verticalRemainder, firstLineHeight, CGRectMinYEdge);
 
     // Slice avatar
-    CGRectDivide(slice, &slice, &lineRemainder, avatarAndLoginHeight, CGRectMinXEdge);
+    CGRectDivide(slice, &slice, &lineRemainder, firstLineHeight, CGRectMinXEdge);
     self.avatarView.frame = slice;
 
     // Slice activity indicator
-    CGRectDivide(lineRemainder, &slice, &lineRemainder, 40.f, CGRectMaxXEdge);
+    CGRectDivide(lineRemainder, &slice, &lineRemainder, activityIndicatorWidth, CGRectMaxXEdge);
     self.activityIndicator.frame = slice;
 
     // Cut padding avatar <> login label
-    CGRectDivide(lineRemainder, &slice, &lineRemainder, 20.f, CGRectMinXEdge);
+    CGRectDivide(lineRemainder, &slice, &lineRemainder, avatarToLoginLabelMargin, CGRectMinXEdge);
 
     // Cut padding activity indicator <> login label
-    CGRectDivide(lineRemainder, &slice, &lineRemainder, 10.f, CGRectMaxXEdge);
+    CGRectDivide(lineRemainder, &slice, &lineRemainder, activityIndicatorToLoginLabelMargin, CGRectMaxXEdge);
 
     // Horizontal remainder is login label
     self.loginLabel.frame = lineRemainder;
 
+    //////// Slice 2. line (repos and gists button) ////////
+
+    // Cut horizontal padding between 1. and 2. line
+    CGRectDivide(verticalRemainder, &slice, &verticalRemainder, firstToSecondLineMargin, CGRectMinYEdge);
+
+    // Slice 2. line
+    CGFloat secondLineHeight = self.reposButton.intrinsicContentSize.height;
+    CGRectDivide(verticalRemainder, &slice, &verticalRemainder, secondLineHeight, CGRectMinYEdge);
+    [self layoutEvenlyDistributedButtonsInRect:slice leftButton:self.reposButton rightButton:self.gistsButton];
+
+    //////// Slice 3. line (followers and following button) ////////
+
+    // Cut horizontal padding between 2. and 3. line
+    CGRectDivide(verticalRemainder, &slice, &verticalRemainder, secondToThirdLineMargin, CGRectMinYEdge);
+
+    // Slice 2. line
+    CGFloat thirdLineHeight = self.followingButton.intrinsicContentSize.height;
+    CGRectDivide(verticalRemainder, &slice, &verticalRemainder, thirdLineHeight, CGRectMinYEdge);
+    [self layoutEvenlyDistributedButtonsInRect:slice leftButton:self.followersButton rightButton:self.followingButton];
+
+}
+
+- (void)layoutEvenlyDistributedButtonsInRect:(CGRect)rect leftButton:(UIButton *)leftButton rightButton:(UIButton *)rightButton {
+    static const CGFloat twoEvenlyDistributedButtonsMargin = 5.f;
+    CGFloat twoEvenlyDistributedButtonsButtonWidth = (CGRectGetWidth(rect) - twoEvenlyDistributedButtonsMargin) / 2.f;
+    CGRect slice, remainder;
+
+    // Slice repos button
+    CGRectDivide(rect, &slice, &remainder, twoEvenlyDistributedButtonsButtonWidth, CGRectMinXEdge);
+    leftButton.frame = slice;
+
+    // Cut buttons margin
+    CGRectDivide(remainder, &slice, &remainder, twoEvenlyDistributedButtonsMargin, CGRectMinXEdge);
+
+    // Right button is remainder
+    rightButton.frame = remainder;
 }
 
 #pragma mark - Teardown
