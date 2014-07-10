@@ -51,7 +51,7 @@
     // Map each search term to a signal of its search result, and switch to the
     // latest search term value.
     @weakify(self)
-    return [[RACObserve(self, searchTerm) map:^id(NSString *searchTerm) {
+    return [[[RACObserve(self, searchTerm) distinctUntilChanged] map:^id(NSString *searchTerm) {
         if (searchTerm.length == 0) {
             return [RACSignal return:nil];
         }

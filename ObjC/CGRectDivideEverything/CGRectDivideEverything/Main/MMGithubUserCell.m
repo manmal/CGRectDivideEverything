@@ -134,6 +134,20 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
         self.user = user;
     }];
 
+    [[[[RACSignal combineLatest:@[[RACObserve(self, user.fullyLoaded) distinctUntilChanged], [RACObserve(self, expanded) distinctUntilChanged]] reduce:^id(NSNumber *fullyLoaded, NSNumber *expanded) {
+        return @(fullyLoaded.boolValue && expanded.boolValue);
+    }] distinctUntilChanged] takeUntil:self.rac_prepareForReuseSignal] subscribeNext:^(NSNumber *animateToFullState) {
+        CGFloat alpha = animateToFullState.boolValue ? 1.f : 0.f;
+        NSTimeInterval duration = animateToFullState.boolValue ? 0.5f : 0.3f;
+        NSTimeInterval delay = animateToFullState.boolValue ? 0.3f : 0.f;
+        [UIView animateWithDuration:duration delay:delay options:0 animations:^{
+            self.reposButton.alpha = alpha;
+            self.gistsButton.alpha = alpha;
+            self.followersButton.alpha = alpha;
+            self.followingButton.alpha = alpha;
+        } completion:nil];
+    }];
+
     RAC(self, loading) = [loadFullUserCommand.executing takeUntil:self.rac_prepareForReuseSignal];
 }
 
@@ -161,7 +175,6 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
     static const CGFloat firstToSecondLineMargin = 15.f;
     static const CGFloat secondToThirdLineMargin = 8.f;
 
-
     CGRect nettoRect, slice, verticalRemainder, lineRemainder;
 
     // Outer stroke view has inset from bounds
@@ -172,7 +185,8 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
     // Netto rect is where all the other elements align
     nettoRect = CGRectInset(self.outerStrokeView.frame, innerStrokePadding, innerStrokePadding);
 
-    //////// Slice 1. line (avatar, login label, and activity indicator) ////////
+
+    //////// 1. line (avatar, login label, and activity indicator) ////////
 
     CGFloat firstLineHeight = MMGithubUserCellPartiallyLoadedHeight - MMGithubUserCellOuterStrokeViewTopOffset - 2 * innerStrokePadding;
     CGRectDivide(nettoRect, &slice, &verticalRemainder, firstLineHeight, CGRectMinYEdge);
@@ -194,7 +208,8 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
     // Horizontal remainder is login label
     self.loginLabel.frame = lineRemainder;
 
-    //////// Slice 2. line (repos and gists button) ////////
+
+    //////// 2. line (repos and gists button) ////////
 
     // Cut horizontal padding between 1. and 2. line
     CGRectDivide(verticalRemainder, &slice, &verticalRemainder, firstToSecondLineMargin, CGRectMinYEdge);
@@ -204,7 +219,8 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
     CGRectDivide(verticalRemainder, &slice, &verticalRemainder, secondLineHeight, CGRectMinYEdge);
     [self layoutEvenlyDistributedButtonsInRect:slice leftButton:self.reposButton rightButton:self.gistsButton];
 
-    //////// Slice 3. line (followers and following button) ////////
+
+    //////// 3. line (followers and following button) ////////
 
     // Cut horizontal padding between 2. and 3. line
     CGRectDivide(verticalRemainder, &slice, &verticalRemainder, secondToThirdLineMargin, CGRectMinYEdge);
@@ -235,6 +251,8 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
 #pragma mark - Teardown
 
 - (void)prepareForReuse {
+    self.reposButton.alpha = self.gistsButton.alpha = self.followersButton.alpha = self.followingButton.alpha = 0.f;
+    self.expanded = NO;
     self.loadFullUserCommand = nil;
 }
 

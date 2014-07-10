@@ -17,6 +17,8 @@
 @property (strong, nonatomic) UIView *separatorView;
 @property (strong, nonatomic) UITableView *tableView;
 @property (assign, nonatomic) CGFloat shownKeyboardHeight;
+@property (strong, nonatomic) NSMutableDictionary *cellExpansionStateByLogin;
+@property (strong, nonatomic) RACSubject *someCellExpansionStateChanged;
 
 @end
 
@@ -24,6 +26,8 @@
 
 - (id)init {
     if (self = [super init]) {
+        self.someCellExpansionStateChanged = RACSubject.subject;
+
         self.userNameField = UITextField.new;
         self.separatorView = UIView.new;
         self.tableView = UITableView.new;
@@ -36,6 +40,7 @@
         self.tableView.delegate = self;
         self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
         self.tableView.indicatorStyle = UIScrollViewIndicatorStyleBlack;
+        self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
         self.separatorView.backgroundColor = UIColor.blackColor;
 
         [self addSubview:_userNameField];
@@ -64,7 +69,7 @@
     }];
 
     // Wait until a viewModel is set and then subscribe to its someUserFullyLoaded signal
-    [self.viewModel.someUserFullyLoaded subscribeNext:^(MMGithubUser *user) {
+    [[RACSignal merge:@[self.someCellExpansionStateChanged, self.viewModel.someUserFullyLoaded]] subscribeNext:^(id refreshCause) {
         @strongify(self)
         [self.tableView beginUpdates];
         [self.tableView endUpdates];
@@ -78,6 +83,15 @@
 
         return [[RACSignal return:userName] delay:0.3f];
     }] switchToLatest];
+
+    // Reset cell expansion states whenever partialUsers are loaded
+    RAC(self, cellExpansionStateByLogin) = [[RACObserve(self.viewModel, partialUsers) distinctUntilChanged] map:^id(NSArray *users) {
+        NSMutableDictionary *emptyExpansionStates = [NSMutableDictionary dictionary];
+        for (MMGithubUser *user in users) {
+            [emptyExpansionStates setObject:@(NO) forKey:user.login];
+        }
+        return emptyExpansionStates;
+    }];
 }
 
 #pragma mark - Layout
@@ -126,6 +140,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     MMGithubUserCell *cell = [MMGithubUserCell cellForTableView:self.tableView style:UITableViewCellStyleDefault];
     MMGithubUser *partialUser = self.viewModel.partialUsers[indexPath.row];
+    cell.expanded = [self.cellExpansionStateByLogin[partialUser.login] boolValue];
     cell.user = self.viewModel.fullyLoadedUsers[partialUser.login] ?: partialUser;
     cell.loadFullUserCommand = [self.viewModel loadFullUserCommand:cell.user createIfNotExists:NO];
     cell.isLastCell = indexPath.row == self.viewModel.partialUsers.count - 1;
@@ -144,9 +159,14 @@
         cell.loadFullUserCommand = [self.viewModel loadFullUserCommand:self.viewModel.partialUsers[indexPath.row] createIfNotExists:YES];
     }
 
-    [cell.loadFullUserCommand execute:nil];
-
     cell.expanded = !cell.expanded;
+    self.cellExpansionStateByLogin[cell.user.login] = @(cell.expanded);
+
+    if (cell.expanded) {
+        [cell.loadFullUserCommand execute:nil];
+    }
+
+    [self.someCellExpansionStateChanged sendNext:nil];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -154,7 +174,7 @@
 
     CGFloat contentHeight;
 
-    if (self.viewModel.fullyLoadedUsers[partialUser.login]) {
+    if (self.viewModel.fullyLoadedUsers[partialUser.login] && [self.cellExpansionStateByLogin[partialUser.login] boolValue]) {
         contentHeight = MMGithubUserCellFullyLoadedHeight;
     } else {
         contentHeight = MMGithubUserCellPartiallyLoadedHeight;
@@ -165,14 +185,6 @@
     }
 
     return contentHeight;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    return 0.1f;
-}
-
-- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
-    return UIView.new;
 }
 
 @end
