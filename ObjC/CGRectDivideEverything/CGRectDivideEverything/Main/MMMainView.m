@@ -142,6 +142,7 @@
     MMGithubUser *partialUser = self.viewModel.partialUsers[indexPath.row];
     cell.expanded = [self.cellExpansionStateByLogin[partialUser.login] boolValue];
     cell.user = self.viewModel.fullyLoadedUsers[partialUser.login] ?: partialUser;
+    [cell refreshAllAvailableElementsVisibility];
     cell.loadFullUserCommand = [self.viewModel loadFullUserCommand:cell.user createIfNotExists:NO];
     cell.isLastCell = indexPath.row == self.viewModel.partialUsers.count - 1;
     return cell;

@@ -22,4 +22,5 @@ static const CGFloat MMGithubUserCellOuterStrokeViewTopOffset = 10.f;
 
 + (instancetype)cellForTableView:(UITableView *)tableView style:(UITableViewCellStyle)style;
 
+- (void)refreshAllAvailableElementsVisibility;
 @end

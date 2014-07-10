@@ -134,9 +134,16 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
         self.user = user;
     }];
 
-    [[[[RACSignal combineLatest:@[[RACObserve(self, user.fullyLoaded) distinctUntilChanged], [RACObserve(self, expanded) distinctUntilChanged]] reduce:^id(NSNumber *fullyLoaded, NSNumber *expanded) {
-        return @(fullyLoaded.boolValue && expanded.boolValue);
-    }] distinctUntilChanged] takeUntil:self.rac_prepareForReuseSignal] subscribeNext:^(NSNumber *animateToFullState) {
+    [[[[RACObserve(self, expanded) map:^id(NSNumber *expanded) {
+        @strongify(self)
+        if (expanded.boolValue) {
+            return RACObserve(self, user.fullyLoaded);
+        } else {
+            return [RACSignal return:@(NO)];
+        }
+    }] switchToLatest] takeUntil:self.rac_prepareForReuseSignal] subscribeNext:^(NSNumber *animateToFullState) {
+        if (!animateToFullState) return; // no-op
+
         CGFloat alpha = animateToFullState.boolValue ? 1.f : 0.f;
         NSTimeInterval duration = animateToFullState.boolValue ? 0.5f : 0.3f;
         NSTimeInterval delay = animateToFullState.boolValue ? 0.3f : 0.f;
@@ -160,6 +167,11 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
     [self.gistsButton setTitle:(user.fullyLoaded ? [NSString stringWithFormat:@"%d Gists", user.publicGists] : nil) forState:UIControlStateNormal];
     [self.followersButton setTitle:(user.fullyLoaded ? [NSString stringWithFormat:@"%d Followers", user.followers] : nil) forState:UIControlStateNormal];
     [self.followingButton setTitle:(user.fullyLoaded ? [NSString stringWithFormat:@"Following %d", user.following] : nil) forState:UIControlStateNormal];
+}
+
+- (void)refreshAllAvailableElementsVisibility {
+    CGFloat alpha = (self.user.fullyLoaded && self.expanded) ? 1.f : 0.f;
+    self.reposButton.alpha = self.gistsButton.alpha = self.followersButton.alpha = self.followingButton.alpha = alpha;
 }
 
 #pragma mark - Layout
@@ -254,6 +266,7 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
     self.reposButton.alpha = self.gistsButton.alpha = self.followersButton.alpha = self.followingButton.alpha = 0.f;
     self.expanded = NO;
     self.loadFullUserCommand = nil;
+    self.user = nil;
 }
 
 @end
