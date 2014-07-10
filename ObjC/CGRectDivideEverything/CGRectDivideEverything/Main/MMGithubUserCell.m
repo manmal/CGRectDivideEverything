@@ -14,8 +14,11 @@
 #import "MMGithubUser.h"
 #import "MMRoundedButton.h"
 #import "UIView+MMAdditions.h"
+#import "UIImageView+AFNetworking.h"
 
 static const CGFloat outerStrokeViewHInset = 10.f;
+static const CGFloat outerStrokeViewBorderWidth = 2.f;
+static const CGFloat innerStrokePadding = 10.f;
 
 @interface MMGithubUserCell()
 
@@ -48,7 +51,7 @@ static const CGFloat outerStrokeViewHInset = 10.f;
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         self.outerStrokeView = [self.class makeStrokeView];
-        self.avatarView = UIImageView.new;
+        self.avatarView = [self.class makeAvatarView];
         self.loginLabel = UILabel.new;
         self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
 
@@ -87,6 +90,16 @@ static const CGFloat outerStrokeViewHInset = 10.f;
     return strokeView;
 }
 
++ (UIImageView *)makeAvatarView {
+    UIImageView *avatarView = UIImageView.new;
+    avatarView.clipsToBounds = YES;
+    avatarView.layer.cornerRadius = 3.f;
+    avatarView.layer.shouldRasterize = YES;
+    avatarView.layer.rasterizationScale = UIScreen.mainScreen.scale;
+
+    return avatarView;
+}
+
 #pragma mark - Attribute Accessors
 
 - (void)setLoading:(BOOL)loading {
@@ -119,6 +132,7 @@ static const CGFloat outerStrokeViewHInset = 10.f;
     _user = user;
 
     self.loginLabel.text = user.name ?: user.login;
+    [self.avatarView setImageWithURL:[NSURL URLWithString:user.avatarURL] placeholderImage:[UIImage imageNamed:@"octocat"]];
 }
 
 #pragma mark - Layout
@@ -126,7 +140,7 @@ static const CGFloat outerStrokeViewHInset = 10.f;
 - (void)layoutSubviews {
     [super layoutSubviews];
 
-    CGRect nettoRect, slice, verticalRemainder, horizontalRemainder;
+    CGRect nettoRect, slice, verticalRemainder, lineRemainder;
 
     // Outer stroke view has inset from bounds
     CGRect offsetBounds = CGRectOffset(self.bounds, 0, MMGithubUserCellOuterStrokeViewTopOffset);
@@ -136,17 +150,27 @@ static const CGFloat outerStrokeViewHInset = 10.f;
     // Netto rect is where all the other elements align
     nettoRect = CGRectInset(self.outerStrokeView.frame, 10.f, 10.f);
 
-    //////// Slice avatar and login label ////////
+    //////// Slice avatar, login label, and activity indicator ////////
 
-    CGRectDivide(nettoRect, &slice, &verticalRemainder, MMGithubUserCellPartiallyLoadedHeight, CGRectMinYEdge);
+    CGFloat avatarAndLoginHeight = MMGithubUserCellPartiallyLoadedHeight - MMGithubUserCellOuterStrokeViewTopOffset - 2 * innerStrokePadding;
+    CGRectDivide(nettoRect, &slice, &lineRemainder, avatarAndLoginHeight, CGRectMinYEdge);
 
     // Slice avatar
-    CGRectDivide(slice, &slice, &horizontalRemainder, MMGithubUserCellPartiallyLoadedHeight, CGRectMinYEdge);
+    CGRectDivide(slice, &slice, &lineRemainder, avatarAndLoginHeight, CGRectMinXEdge);
+    self.avatarView.frame = slice;
 
-    // Login
-    self.loginLabel.frame = self.bounds;
-    self.activityIndicator.frame = CGRectMake(100, 0, 40, 40);
+    // Slice activity indicator
+    CGRectDivide(lineRemainder, &slice, &lineRemainder, 40.f, CGRectMaxXEdge);
+    self.activityIndicator.frame = slice;
 
+    // Cut padding avatar <> login label
+    CGRectDivide(lineRemainder, &slice, &lineRemainder, 20.f, CGRectMinXEdge);
+
+    // Cut padding activity indicator <> login label
+    CGRectDivide(lineRemainder, &slice, &lineRemainder, 10.f, CGRectMaxXEdge);
+
+    // Horizontal remainder is login label
+    self.loginLabel.frame = lineRemainder;
 
 }
 

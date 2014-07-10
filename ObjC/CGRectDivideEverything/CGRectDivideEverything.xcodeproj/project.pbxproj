@@ -22,6 +22,7 @@
 		6F5C0A34196B10180011CF0B /* CGRectDivideEverythingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F5C0A33196B10180011CF0B /* CGRectDivideEverythingTests.m */; };
 		B3ABF0882746DDAE424632FB /* MMGithubUser.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABF4A6327D5B8C048B2BDB /* MMGithubUser.m */; };
 		B3ABF1FEA4590A0A5E180CD7 /* MMLoadFullUserCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABF76B48FBAF3D25C49F47 /* MMLoadFullUserCommand.m */; };
+		B3ABF68066DDAD8D8C5F4F2A /* octocat@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B3ABF899953EEDF304829AF0 /* octocat@2x.png */; };
 		B3ABF893255A7E8EC9259F9B /* UIView+MMAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABF007D63FBE5DD90BDEF8 /* UIView+MMAdditions.m */; };
 		B3ABFA180D6697BDD04A9D51 /* MMMainViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABFC34876BDD5AE96F37AF /* MMMainViewModel.m */; };
 		B3ABFBD2E60AA8090A9C3E0C /* MMMainView.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ABF0C04703DA8F2F3F31D9 /* MMMainView.m */; };
@@ -68,6 +69,7 @@
 		B3ABF76B48FBAF3D25C49F47 /* MMLoadFullUserCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMLoadFullUserCommand.m; sourceTree = "<group>"; };
 		B3ABF7A7C1D459EC204CFACB /* MMGithubUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMGithubUser.h; sourceTree = "<group>"; };
 		B3ABF811AB4C53D6DCE341A6 /* MMRoundedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMRoundedButton.h; sourceTree = "<group>"; };
+		B3ABF899953EEDF304829AF0 /* octocat@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "octocat@2x.png"; sourceTree = "<group>"; };
 		B3ABF8AFCB9FE1E47EF9AD6C /* MMRoundedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMRoundedButton.m; sourceTree = "<group>"; };
 		B3ABF8FB18A805C95AAA224F /* MMMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMMainViewController.h; sourceTree = "<group>"; };
 		B3ABF8FF8292841F7522E46F /* MMGithubUserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMGithubUserCell.m; sourceTree = "<group>"; };
@@ -110,6 +112,7 @@
 				6F5C0A0D196B10180011CF0B /* Frameworks */,
 				6F5C0A0C196B10180011CF0B /* Products */,
 				FF97F25851464B17AC2B0801 /* Pods.xcconfig */,
+				B3ABFB525D684AEDF225D73B /* Resources */,
 			);
 			sourceTree = "<group>";
 		};
@@ -203,6 +206,14 @@
 				B3ABF811AB4C53D6DCE341A6 /* MMRoundedButton.h */,
 			);
 			path = Main;
+			sourceTree = "<group>";
+		};
+		B3ABFB525D684AEDF225D73B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B3ABF899953EEDF304829AF0 /* octocat@2x.png */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		B3ABFE6197ED2F676FB3928F /* Model */ = {
@@ -299,6 +310,7 @@
 			files = (
 				6F5C0A19196B10180011CF0B /* InfoPlist.strings in Resources */,
 				6F5C0A21196B10180011CF0B /* Images.xcassets in Resources */,
+				B3ABF68066DDAD8D8C5F4F2A /* octocat@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
