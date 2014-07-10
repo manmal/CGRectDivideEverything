@@ -200,10 +200,14 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
     [self.gistsButton setTitle:(user.fullyLoaded ? [NSString stringWithFormat:@"%d Gists", user.publicGists] : nil) forState:UIControlStateNormal];
     [self.followersButton setTitle:(user.fullyLoaded ? [NSString stringWithFormat:@"%d Followers", user.followers] : nil) forState:UIControlStateNormal];
     [self.followingButton setTitle:(user.fullyLoaded ? [NSString stringWithFormat:@"Following %d", user.following] : nil) forState:UIControlStateNormal];
-    self.companyLabel.text = (user.fullyLoaded ? user.company : nil);
+    self.companyLabel.text = [self safeifyAttributeString:user.company withUser:user];
     self.hireableLabel.text = (user.fullyLoaded ? (user.hireable ? @"✔" : @"✘") : nil);
-    self.profileURLLabel.text = (user.fullyLoaded ? user.htmlURL : nil);
-    self.blogLabel.text = (user.fullyLoaded ? user.blog : nil);
+    self.profileURLLabel.text = [self safeifyAttributeString:user.htmlURL withUser:user];
+    self.blogLabel.text = [self safeifyAttributeString:user.blog withUser:user];
+}
+
+- (NSString *)safeifyAttributeString:(NSString *)attributeString withUser:(MMGithubUser *)user {
+    return (user.fullyLoaded ? (attributeString.length > 0 ? attributeString : @"-") : nil);
 }
 
 - (void)refreshAllAvailableElementsVisibility {

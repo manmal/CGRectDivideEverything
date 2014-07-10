@@ -66,4 +66,12 @@
     return dateFormatter;
 }
 
+- (NSString *)gistsURL {
+    return [_gistsURL stringByReplacingOccurrencesOfString:@"{/gist_id}" withString:@""];
+}
+
+- (NSString *)followingURL {
+    return [_followingURL stringByReplacingOccurrencesOfString:@"{/other_user}" withString:@""];
+}
+
 @end
