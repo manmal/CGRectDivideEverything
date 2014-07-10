@@ -22,6 +22,7 @@
 @property (strong, nonatomic) NSMutableDictionary *loadFullUserCommands;
 @property (strong, nonatomic, readwrite) NSMutableDictionary *fullyLoadedUsers;
 @property (strong, nonatomic, readwrite) RACSubject *someUserFullyLoaded;
+@property (assign, nonatomic, readwrite) BOOL loadingUsers;
 
 @end
 
@@ -57,11 +58,19 @@
         }
 
         @strongify(self)
-        return [[[self.manager rac_GET:@"search/users" parameters:@{@"q": searchTerm}] map:^id(NSDictionary *result) {
+        self.loadingUsers = YES;
+
+        return [[[[[self.manager rac_GET:@"search/users" parameters:@{@"q": searchTerm}] map:^id(NSDictionary *result) {
             return [[[result[@"items"] rac_sequence] map:^MMGithubUser *(NSDictionary *userDict) {
                 return [MTLJSONAdapter modelOfClass:MMGithubUser.class fromJSONDictionary:userDict error:nil];
             }] array];
-        }] replayLazily];
+        }] replayLazily] doNext:^(id x) {
+            @strongify(self)
+            self.loadingUsers = NO;
+        }] doError:^(NSError *error) {
+            @strongify(self)
+            self.loadingUsers = NO;
+        }];
     }] switchToLatest];
 }
 

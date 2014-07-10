@@ -17,6 +17,7 @@
 @property (copy, nonatomic) NSArray *partialUsers;
 @property (strong, nonatomic, readonly) NSMutableDictionary *fullyLoadedUsers;
 @property (strong, nonatomic, readonly) RACSubject *someUserFullyLoaded;
+@property (assign, nonatomic, readonly) BOOL loadingUsers;
 
 - (MMLoadFullUserCommand *)loadFullUserCommand:(MMGithubUser *)user createIfNotExists:(BOOL)createIfNotExists;
 

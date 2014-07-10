@@ -16,6 +16,8 @@
 @property (strong, nonatomic) UITextField *userNameField;
 @property (strong, nonatomic) UIView *separatorView;
 @property (strong, nonatomic) UITableView *tableView;
+@property (strong, nonatomic) UIActivityIndicatorView *activityIndicatorView;
+@property (assign, nonatomic) BOOL activityIndicatorActive;
 @property (assign, nonatomic) CGFloat shownKeyboardHeight;
 @property (strong, nonatomic) NSMutableDictionary *cellExpansionStateByLogin;
 @property (strong, nonatomic) RACSubject *someCellExpansionStateChanged;
@@ -31,6 +33,7 @@
         self.userNameField = UITextField.new;
         self.separatorView = UIView.new;
         self.tableView = UITableView.new;
+        self.activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
 
         self.userNameField.placeholder = NSLocalizedString(@"Enter a Github user name...", nil);
         self.userNameField.font = [UIFont fontWithName:@"Futura-Medium" size:20.f];
@@ -46,6 +49,7 @@
         [self addSubview:_userNameField];
         [self addSubview:_separatorView];
         [self addSubview:_tableView];
+        [self addSubview:_activityIndicatorView];
 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
@@ -92,6 +96,19 @@
         }
         return emptyExpansionStates;
     }];
+
+    RACChannelTo(self, activityIndicatorActive) = RACChannelTo(self.viewModel, loadingUsers);
+}
+
+- (void)setActivityIndicatorActive:(BOOL)activityIndicatorActive {
+    if (_activityIndicatorActive == activityIndicatorActive) return;
+    _activityIndicatorActive = activityIndicatorActive;
+
+    if (activityIndicatorActive) {
+        [self.activityIndicatorView startAnimating];
+    } else {
+        [self.activityIndicatorView stopAnimating];
+    }
 }
 
 #pragma mark - Layout
@@ -99,20 +116,32 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
 
-    CGRect slice, remainder;
+    static const CGFloat horizontalMargin = 16.f;
+    CGRect slice, verticalRemainder, lineRemainder;
 
     // Cut status bar height
-    CGRectDivide(self.bounds, &slice, &remainder, MIN([UIApplication sharedApplication].statusBarFrame.size.height, [UIApplication sharedApplication].statusBarFrame.size.width), CGRectMinYEdge);
+    CGRectDivide(self.bounds, &slice, &verticalRemainder, MIN([UIApplication sharedApplication].statusBarFrame.size.height, [UIApplication sharedApplication].statusBarFrame.size.width), CGRectMinYEdge);
 
-    // Slice partialUser name field and cut left and right margin
-    CGRectDivide(remainder, &slice, &remainder, 50.f, CGRectMinYEdge);
-    static const CGFloat userNameFieldHMargin = 16.f;
-    self.userNameField.frame = CGRectInset(slice, userNameFieldHMargin, 0);
+    // Slice partialUser name and activity indicator line
+    CGRectDivide(verticalRemainder, &slice, &verticalRemainder, 50.f, CGRectMinYEdge);
+
+    // Inset line
+    slice = CGRectInset(slice, horizontalMargin, 0);
+
+    // Slice activity indicator horizontally
+    CGRectDivide(slice, &slice, &lineRemainder, 20.f, CGRectMaxXEdge);
+    self.activityIndicatorView.frame = slice;
+
+    // Cut horizontal margin...
+    CGRectDivide(lineRemainder, &slice, &lineRemainder, horizontalMargin, CGRectMaxXEdge);
+
+    // ... and assign remainder to user name.
+    self.userNameField.frame = lineRemainder;
 
     // Slice separator and table view
-    CGRectDivide(remainder, &slice, &remainder, 2.f, CGRectMinYEdge);
+    CGRectDivide(verticalRemainder, &slice, &verticalRemainder, 2.f, CGRectMinYEdge);
     self.separatorView.frame = slice;
-    self.tableView.frame = remainder;
+    self.tableView.frame = verticalRemainder;
 
     self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, self.shownKeyboardHeight, 0);
     self.tableView.contentInset = self.tableView.scrollIndicatorInsets;
