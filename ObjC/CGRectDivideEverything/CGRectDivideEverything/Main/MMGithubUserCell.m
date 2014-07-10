@@ -52,15 +52,29 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
         self.avatarView = [self.class makeAvatarView];
         self.loginLabel = [self.class makeLabelWithFontSize:20.f];
         self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
-        self.reposButton = MMRoundedButton.new;
-        self.gistsButton = MMRoundedButton.new;
-        self.followersButton = MMRoundedButton.new;
-        self.followingButton = MMRoundedButton.new;
+        self.reposButton = [self makeButton];
+        self.gistsButton = [self makeButton];
+        self.followersButton = [self makeButton];
+        self.followingButton = [self makeButton];
+        self.companyDescLabel = [self.class makeAttributeDescLabel];
+        self.companyLabel = [self.class makeAttributeLabel];
+        self.hireableDescLabel = [self.class makeAttributeDescLabel];
+        self.hireableLabel = [self.class makeAttributeLabel];
+        self.profileURLDescLabel = [self.class makeAttributeDescLabel];
+        self.profileURLLabel = [self.class makeAttributeLabel];
+        self.blogDescLabel = [self.class makeAttributeDescLabel];
+        self.blogLabel = [self.class makeAttributeLabel];
 
         self.activityIndicator.hidesWhenStopped = YES;
         self.activityIndicator.color = UIColor.blackColor;
+        self.companyDescLabel.text = @"Working at";
+        self.hireableDescLabel.text = @"Hireable";
+        self.hireableLabel.textAlignment = NSTextAlignmentCenter;
+        self.profileURLDescLabel.text = @"Github Profile";
+        self.blogDescLabel.text = @"Blog";
 
         [self addSubviews:@[_outerStrokeView, _avatarView, _loginLabel, _activityIndicator, _reposButton, _gistsButton, _followersButton, _followingButton]];
+        [self addSubviews:@[_companyDescLabel, _companyLabel, _hireableDescLabel, _hireableLabel, _profileURLDescLabel, _profileURLLabel, _blogDescLabel, _blogLabel]];
     }
 
     return self;
@@ -76,6 +90,7 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
 
     return cell;
 }
+
 
 + (NSString *)cellIdentifier {
     return NSStringFromClass([self class]);
@@ -105,6 +120,27 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
 + (UILabel *)makeLabelWithFontSize:(CGFloat)fontSize {
     UILabel *label = UILabel.new;
     label.font = [UIFont fontWithName:@"Futura-Medium" size:fontSize];
+    label.backgroundColor = UIColor.clearColor;
+    return label;
+}
+
+- (MMRoundedButton *)makeButton {
+    MMRoundedButton *button = MMRoundedButton.new;
+    [button addTarget:self action:@selector(onButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+    return button;
+}
+
++ (UILabel *)makeAttributeDescLabel {
+    UILabel *label = UILabel.new;
+    label.font = [UIFont fontWithName:@"Futura-Medium" size:12.f];
+    label.backgroundColor = UIColor.clearColor;
+    label.textColor = UIColor.grayColor;
+    return label;
+}
+
++ (UILabel *)makeAttributeLabel {
+    UILabel *label = UILabel.new;
+    label.font = [UIFont fontWithName:@"Futura-Medium" size:16.f];
     label.backgroundColor = UIColor.clearColor;
     return label;
 }
@@ -148,10 +184,7 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
         NSTimeInterval duration = animateToFullState.boolValue ? 0.5f : 0.3f;
         NSTimeInterval delay = animateToFullState.boolValue ? 0.3f : 0.f;
         [UIView animateWithDuration:duration delay:delay options:0 animations:^{
-            self.reposButton.alpha = alpha;
-            self.gistsButton.alpha = alpha;
-            self.followersButton.alpha = alpha;
-            self.followingButton.alpha = alpha;
+            [self setSideloadedElementsAlpha:alpha];
         } completion:nil];
     }];
 
@@ -167,11 +200,35 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
     [self.gistsButton setTitle:(user.fullyLoaded ? [NSString stringWithFormat:@"%d Gists", user.publicGists] : nil) forState:UIControlStateNormal];
     [self.followersButton setTitle:(user.fullyLoaded ? [NSString stringWithFormat:@"%d Followers", user.followers] : nil) forState:UIControlStateNormal];
     [self.followingButton setTitle:(user.fullyLoaded ? [NSString stringWithFormat:@"Following %d", user.following] : nil) forState:UIControlStateNormal];
+    self.companyLabel.text = (user.fullyLoaded ? user.company : nil);
+    self.hireableLabel.text = (user.fullyLoaded ? (user.hireable ? @"✔" : @"✘") : nil);
+    self.profileURLLabel.text = (user.fullyLoaded ? user.htmlURL : nil);
+    self.blogLabel.text = (user.fullyLoaded ? user.blog : nil);
 }
 
 - (void)refreshAllAvailableElementsVisibility {
     CGFloat alpha = (self.user.fullyLoaded && self.expanded) ? 1.f : 0.f;
     self.reposButton.alpha = self.gistsButton.alpha = self.followersButton.alpha = self.followingButton.alpha = alpha;
+}
+
+- (void)setSideloadedElementsAlpha:(CGFloat)alpha {
+    self.reposButton.alpha = self.gistsButton.alpha = self.followersButton.alpha = self.followingButton.alpha = alpha;
+    self.companyDescLabel.alpha = self.companyLabel.alpha = self.hireableDescLabel.alpha = self.hireableLabel.alpha = alpha;
+    self.profileURLDescLabel.alpha = self.profileURLLabel.alpha = self.blogDescLabel.alpha = self.blogLabel.alpha = alpha;
+}
+
+#pragma mark - Actions
+
+- (void)onButtonTapped:(id)button {
+    if (button == self.reposButton) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.user.reposURL]];
+    } else if (button == self.gistsButton) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.user.gistsURL]];
+    } else if (button == self.followersButton) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.user.followersURL]];
+    } else if (button == self.followingButton) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.user.followingURL]];
+    }
 }
 
 #pragma mark - Layout
@@ -186,6 +243,9 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
     static const CGFloat activityIndicatorToLoginLabelMargin = 10.f;
     static const CGFloat firstToSecondLineMargin = 15.f;
     static const CGFloat secondToThirdLineMargin = 8.f;
+    static const CGFloat attributeLineMargin = 12.f;
+    static const CGFloat attributeLabelInnerAndOuterMargin = 10.f;
+    static const CGFloat attributeDescLabelBottomMargin = 2.f;
 
     CGRect nettoRect, slice, verticalRemainder, lineRemainder;
 
@@ -226,7 +286,7 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
     // Cut horizontal padding between 1. and 2. line
     CGRectDivide(verticalRemainder, &slice, &verticalRemainder, firstToSecondLineMargin, CGRectMinYEdge);
 
-    // Slice 2. line
+    // Slice 2. line buttons
     CGFloat secondLineHeight = self.reposButton.intrinsicContentSize.height;
     CGRectDivide(verticalRemainder, &slice, &verticalRemainder, secondLineHeight, CGRectMinYEdge);
     [self layoutEvenlyDistributedButtonsInRect:slice leftButton:self.reposButton rightButton:self.gistsButton];
@@ -237,11 +297,53 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
     // Cut horizontal padding between 2. and 3. line
     CGRectDivide(verticalRemainder, &slice, &verticalRemainder, secondToThirdLineMargin, CGRectMinYEdge);
 
-    // Slice 2. line
+    // Slice 3. line buttons
     CGFloat thirdLineHeight = self.followingButton.intrinsicContentSize.height;
     CGRectDivide(verticalRemainder, &slice, &verticalRemainder, thirdLineHeight, CGRectMinYEdge);
     [self layoutEvenlyDistributedButtonsInRect:slice leftButton:self.followersButton rightButton:self.followingButton];
 
+
+    //////// Setup for remaining attribute lines ////////
+
+    CGFloat attributeDescLabelHeight = [self.hireableDescLabel sizeThatFits:CGSizeMake(UIViewNoIntrinsicMetric, UIViewNoIntrinsicMetric)].height;
+    CGFloat attributeLabelHeight = [@"T" sizeWithAttributes:@{NSFontAttributeName: self.hireableLabel.font}].height;
+    CGFloat totalAttributeAndDescLabelHeights = attributeDescLabelHeight + attributeDescLabelBottomMargin + attributeLabelHeight;
+
+    // Cut left and right margins for the lines to come (looks better)
+    CGRectDivide(verticalRemainder, &slice, &verticalRemainder, attributeLabelInnerAndOuterMargin, CGRectMinXEdge);
+    CGRectDivide(verticalRemainder, &slice, &verticalRemainder, attributeLabelInnerAndOuterMargin, CGRectMaxXEdge);
+
+
+    //////// 4. line (working at and hireable) ////////
+
+    // Cut horizontal padding between 3. and 4. line
+    CGRectDivide(verticalRemainder, &slice, &verticalRemainder, attributeLineMargin, CGRectMinYEdge);
+
+    // Slice 4. line
+    CGRectDivide(verticalRemainder, &slice, &verticalRemainder, totalAttributeAndDescLabelHeights, CGRectMinYEdge);
+
+    // Slice hireable labels
+    CGSize hireableDescLabelSize = [self.hireableDescLabel sizeThatFits:CGSizeMake(UIViewNoIntrinsicMetric, UIViewNoIntrinsicMetric)];
+    CGRectDivide(slice, &slice, &lineRemainder, hireableDescLabelSize.width, CGRectMaxXEdge);
+    [self layoutAttributeLabel:self.hireableLabel andDescLabel:self.hireableDescLabel inRect:slice descLabelHeight:attributeDescLabelHeight labelHeight:attributeLabelHeight];
+    CGRectDivide(lineRemainder, &slice, &lineRemainder, attributeLabelInnerAndOuterMargin, CGRectMaxXEdge);
+    [self layoutAttributeLabel:self.companyLabel andDescLabel:self.companyDescLabel inRect:lineRemainder descLabelHeight:attributeDescLabelHeight labelHeight:attributeLabelHeight];
+
+
+    //////// 5. & 6. line (profile URL and blog) ////////
+
+    for (NSArray *lineLabels in @[@[self.profileURLDescLabel, self.profileURLLabel], @[self.blogDescLabel, self.blogLabel]]) {
+        UILabel *descLabel = lineLabels[0];
+        UILabel *attributeLabel = lineLabels[1];
+
+        // Cut horizontal padding between last and this line
+        CGRectDivide(verticalRemainder, &slice, &verticalRemainder, attributeLineMargin, CGRectMinYEdge);
+
+        // Slice this line
+        CGRectDivide(verticalRemainder, &slice, &verticalRemainder, totalAttributeAndDescLabelHeights, CGRectMinYEdge);
+
+        [self layoutAttributeLabel:attributeLabel andDescLabel:descLabel inRect:slice descLabelHeight:attributeDescLabelHeight labelHeight:attributeLabelHeight];
+    }
 }
 
 - (void)layoutEvenlyDistributedButtonsInRect:(CGRect)rect leftButton:(UIButton *)leftButton rightButton:(UIButton *)rightButton {
@@ -260,10 +362,20 @@ static const CGFloat outerStrokeViewBorderWidth = 2.f;
     rightButton.frame = remainder;
 }
 
+- (void)layoutAttributeLabel:(UILabel *)attributeLabel andDescLabel:(UILabel *)descLabel inRect:(CGRect)rect descLabelHeight:(CGFloat)descLabelHeight labelHeight:(CGFloat)labelHeight {
+    CGRect slice, remainder;
+
+    CGRectDivide(rect, &slice, &remainder, descLabelHeight, CGRectMinYEdge);
+    descLabel.frame = slice;
+
+    CGRectDivide(remainder, &slice, &remainder, labelHeight, CGRectMaxYEdge);
+    attributeLabel.frame = slice;
+}
+
 #pragma mark - Teardown
 
 - (void)prepareForReuse {
-    self.reposButton.alpha = self.gistsButton.alpha = self.followersButton.alpha = self.followingButton.alpha = 0.f;
+    [self setSideloadedElementsAlpha:0.f];
     self.expanded = NO;
     self.loadFullUserCommand = nil;
     self.user = nil;
